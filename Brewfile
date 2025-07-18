@@ -2,8 +2,8 @@
 # Install with: brew bundle
 
 # Taps
-tap "homebrew/cask"
-tap "homebrew/cask-fonts"
+# Note: homebrew/cask is now built-in
+# Note: fonts are now in homebrew/cask, no separate tap needed
 
 # Core utilities
 brew "git"

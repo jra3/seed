@@ -91,11 +91,8 @@ else
     mkdir -p "$DOTFILES_DIR"
     
     # Copy local config files to dotfiles directory
-    [[ -f ".tmux.conf" ]] && cp ".tmux.conf" "$DOTFILES_DIR/"
-    [[ -f ".gitconfig" ]] && cp ".gitconfig" "$DOTFILES_DIR/"
-    [[ -f ".gitignore_global" ]] && cp ".gitignore_global" "$DOTFILES_DIR/"
-    [[ -f ".vimrc" ]] && cp ".vimrc" "$DOTFILES_DIR/"
-    [[ -f ".editorconfig" ]] && cp ".editorconfig" "$DOTFILES_DIR/"
+    [[ -f ".tmux.conf" ]] && cp ".tmux.conf" "$DOTFILES_DIR/" && log "Copied .tmux.conf"
+    # Add other config files here as they are created
 fi
 
 # 6. Setup Zprezto
@@ -104,26 +101,30 @@ if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
     git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
     
     # Create Zsh configuration files
-    setopt EXTENDED_GLOB
-    for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-        ln -sf "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-    done
+    # Use zsh to handle the glob pattern
+    zsh -c '
+        setopt EXTENDED_GLOB
+        for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
+            ln -sf "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
+        done
+    '
 else
     log "Zprezto already installed"
 fi
 
 # 7. Symlink dotfiles
 log "Creating dotfile symlinks..."
-cd "$DOTFILES_DIR"
-# Add your dotfile symlinking logic here
-# Example:
-# ln -sf "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
-# ln -sf "$DOTFILES_DIR/.vimrc" "$HOME/.vimrc"
+if [[ -f "$DOTFILES_DIR/dotfiles-setup.sh" ]]; then
+    bash "$DOTFILES_DIR/dotfiles-setup.sh"
+elif [[ -f "dotfiles-setup.sh" ]]; then
+    bash dotfiles-setup.sh
+fi
 
 # 8. Configure macOS defaults
 log "Configuring macOS defaults..."
-if [[ -f "macos-defaults.sh" ]]; then
-    bash macos-defaults.sh
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -f "$SCRIPT_DIR/macos-defaults.sh" ]]; then
+    bash "$SCRIPT_DIR/macos-defaults.sh"
 else
     warning "macos-defaults.sh not found. Skipping macOS configuration."
 fi
@@ -131,7 +132,7 @@ fi
 # 9. Setup SSH key
 if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
     log "Generating SSH key..."
-    ssh-keygen -t ed25519 -C "your-email@example.com" -f "$HOME/.ssh/id_ed25519" -N ""
+    ssh-keygen -t ed25519 -C "nop@porcnick.com" -f "$HOME/.ssh/id_ed25519" -N ""
     
     # Start ssh-agent and add key
     eval "$(ssh-agent -s)"
@@ -146,8 +147,8 @@ fi
 
 # 10. Configure Git
 log "Configuring Git..."
-git config --global user.name "Your Name"
-git config --global user.email "your-email@example.com"
+git config --global user.name "John Allen"
+git config --global user.email "nop@porcnick.com"
 git config --global init.defaultBranch main
 git config --global pull.rebase false
 

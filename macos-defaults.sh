@@ -11,6 +11,10 @@ osascript -e 'tell application "System Preferences" to quit'
 # General UI/UX
 # ----------------------------------------------------------------------
 
+# Set highlight color to lime green
+# RGB values: 0.50 1.00 0.00 (lime green)
+defaults write NSGlobalDomain AppleHighlightColor -string "0.500000 1.000000 0.000000"
+
 # Expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
@@ -54,9 +58,9 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
 # Enable full keyboard access for all controls
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Set a fast keyboard repeat rate
-defaults write NSGlobalDomain KeyRepeat -int 2
-defaults write NSGlobalDomain InitialKeyRepeat -int 15
+# Set the fastest keyboard repeat rate (1 = fastest)
+defaults write NSGlobalDomain KeyRepeat -int 1
+defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false

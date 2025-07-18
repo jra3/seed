@@ -98,30 +98,28 @@ chmod +x *.sh
 
 ### Using Your Own Dotfiles
 
-The setup expects your dotfiles in a separate Git repository. Structure your dotfiles repo like this:
+This repository includes a `.tmux.conf` configuration file. If you have your own dotfiles repository, you can use it instead by setting the `DOTFILES_REPO` environment variable before running setup.
 
-```
-dotfiles/
-├── .gitconfig
-├── .gitignore_global
-├── .vimrc
-├── .tmux.conf
-├── .zshrc
-└── .zpreztorc
-```
+The `dotfiles-setup.sh` script expects these files in your dotfiles repository:
+- `.gitconfig`
+- `.gitignore_global`
+- `.vimrc`
+- `.tmux.conf`
+- `.editorconfig`
 
-Update `dotfiles-setup.sh` to map your specific files.
+If you're using the included setup without a separate dotfiles repo, only the `.tmux.conf` will be configured.
 
 ## Post-Installation
 
 ### Automated Steps Complete ✅
 
 After running the scripts, the following will be configured:
-- Development tools and applications installed
-- Shell environment configured
-- System preferences applied
-- SSH key generated (in clipboard)
-- Git configured with aliases
+- Development tools and applications installed via Homebrew
+- Zsh with Zprezto framework installed
+- System preferences applied (Finder, Dock, keyboard, etc.)
+- SSH key generated (ED25519, copied to clipboard)
+- Basic Git configuration with common aliases
+- Tmux configured with custom key bindings
 
 ### Manual Steps Required 📋
 

@@ -1,0 +1,205 @@
+# macOS Dev Setup
+
+Automated setup scripts for a fresh macOS installation, designed to get your development environment up and running quickly.
+
+## Features
+
+- 🚀 **One-command setup** - Run a single script to configure your entire system
+- 📦 **Homebrew-based** - Declarative package management with Brewfile
+- 🔧 **System preferences** - Automated macOS settings configuration
+- 🏠 **Dotfiles integration** - Easy symlink management for your config files
+- 🛡️ **Safe & idempotent** - Scripts can be run multiple times without issues
+- 📝 **Well-documented** - Clear instructions for both automated and manual steps
+
+## Quick Start
+
+```bash
+# Clone this repository
+git clone https://github.com/YOUR_USERNAME/macos-dev-setup.git
+cd macos-dev-setup
+
+# Make scripts executable
+chmod +x *.sh
+
+# Run the setup
+./setup.sh
+```
+
+## Prerequisites
+
+- macOS (tested on macOS 13+ Ventura and later)
+- Administrator access
+- Internet connection
+- Apple ID (for manual App Store installations)
+
+## What's Included
+
+### Development Tools
+- **Languages**: Node.js, Python, Go, Rust
+- **Version Control**: Git with useful aliases
+- **Package Managers**: Homebrew, npm, pip
+- **Containers**: Docker & Docker Compose
+
+### Modern CLI Tools
+- `ripgrep` - Fast text search
+- `fd` - User-friendly find
+- `bat` - Better cat with syntax highlighting
+- `eza` - Modern ls replacement
+- `zoxide` - Smarter cd command
+- `fzf` - Fuzzy finder
+- `tmux` - Terminal multiplexer
+- `neovim` - Modern vim
+
+### Applications
+- **Terminals**: Ghostty, iTerm2
+- **Development**: Visual Studio Code, Claude
+- **Productivity**: Rectangle, Alfred/Raycast
+- **Security**: 1Password
+- **Communication**: Slack, Discord
+- **Notes**: Notion, Obsidian
+
+### Shell Environment
+- Zsh with Zprezto framework
+- Custom aliases and functions
+- Optimized shell startup time
+- Git-aware prompt
+
+## Customization
+
+### Before Running
+
+1. **Update Git Configuration** - Edit `setup.sh`:
+   ```bash
+   # Lines 133-134 - Your Git identity
+   git config --global user.name "Your Name"
+   git config --global user.email "your-email@example.com"
+   ```
+
+2. **Dotfiles Setup** - Choose one option:
+   - **Option A**: Use included config files (default)
+     - The setup will use the `.tmux.conf` and other config files in this repo
+   - **Option B**: Use your own dotfiles repository
+     ```bash
+     export DOTFILES_REPO="https://github.com/YOUR_USERNAME/dotfiles.git"
+     ./setup.sh
+     ```
+
+3. **Customize Packages** - Edit `Brewfile` to add/remove:
+   - CLI tools
+   - GUI applications
+   - Fonts
+   - Mac App Store apps
+
+4. **Adjust System Preferences** - Edit `macos-defaults.sh` to change:
+   - Dock behavior
+   - Finder settings
+   - Keyboard/trackpad preferences
+   - Security settings
+
+### Using Your Own Dotfiles
+
+The setup expects your dotfiles in a separate Git repository. Structure your dotfiles repo like this:
+
+```
+dotfiles/
+├── .gitconfig
+├── .gitignore_global
+├── .vimrc
+├── .tmux.conf
+├── .zshrc
+└── .zpreztorc
+```
+
+Update `dotfiles-setup.sh` to map your specific files.
+
+## Post-Installation
+
+### Automated Steps Complete ✅
+
+After running the scripts, the following will be configured:
+- Development tools and applications installed
+- Shell environment configured
+- System preferences applied
+- SSH key generated (in clipboard)
+- Git configured with aliases
+
+### Manual Steps Required 📋
+
+1. **Sign in to iCloud**
+   - System Settings → Apple ID
+   - Enable desired services
+
+2. **Configure Security**
+   - Enable FileVault: System Settings → Privacy & Security → FileVault
+   - Configure Firewall settings
+   - Review app permissions
+
+3. **Authenticate Applications**
+   - Sign in to: Claude, 1Password, Slack, etc.
+   - Configure app-specific settings
+
+4. **Add SSH Key to GitHub**
+   - The public key is in your clipboard
+   - Go to GitHub → Settings → SSH Keys
+   - Add new SSH key
+
+5. **Install App Store Apps**
+   - Sign in to App Store
+   - Install purchased apps or those listed in Brewfile comments
+
+## Scripts Overview
+
+| Script | Purpose |
+|--------|---------|
+| `setup.sh` | Main orchestrator - runs entire setup process |
+| `Brewfile` | Declares all packages to install |
+| `macos-defaults.sh` | Configures system preferences |
+| `dotfiles-setup.sh` | Creates dotfile symlinks |
+
+## Troubleshooting
+
+### Homebrew Issues
+```bash
+# If Homebrew fails to install
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# If packages fail to install
+brew doctor
+brew update
+```
+
+### Permission Errors
+```bash
+# Fix Homebrew permissions
+sudo chown -R $(whoami) /usr/local/bin /usr/local/lib
+
+# For Apple Silicon Macs
+sudo chown -R $(whoami) /opt/homebrew
+```
+
+### Dotfiles Not Linking
+- Ensure your dotfiles repo is cloned
+- Check file paths in `dotfiles-setup.sh`
+- Look for `.backup` files if links fail
+
+## Contributing
+
+Feel free to fork and customize! Common modifications:
+
+- Different terminal preferences
+- Alternative shells (fish, nushell)
+- Additional development tools
+- Company-specific configurations
+
+Pull requests for improvements are welcome.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+Inspired by the macOS setup community and various dotfile repositories. Special thanks to:
+- [Homebrew](https://brew.sh/) for package management
+- [Zprezto](https://github.com/sorin-ionescu/prezto) for Zsh configuration
+- The developers of all the excellent tools included

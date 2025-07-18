@@ -112,6 +112,45 @@ setup_git() {
     echo "Git configuration complete"
 }
 
+# Setup Ghostty terminal configuration
+setup_ghostty() {
+    echo "Setting up Ghostty configuration..."
+    
+    local ghostty_config_dir="$HOME/.config/ghostty"
+    local ghostty_config_file="$ghostty_config_dir/config"
+    local source_config="$DOTFILES_DIR/.config/ghostty/config"
+    
+    # Create config directory if it doesn't exist
+    mkdir -p "$ghostty_config_dir"
+    
+    # Check if source config exists
+    if [[ -f "$source_config" ]]; then
+        # Backup existing config if it exists and isn't a symlink
+        if [[ -f "$ghostty_config_file" && ! -L "$ghostty_config_file" ]]; then
+            echo "Backing up existing Ghostty config to $ghostty_config_file.backup"
+            mv "$ghostty_config_file" "$ghostty_config_file.backup"
+        fi
+        
+        # Create symlink
+        ln -sf "$source_config" "$ghostty_config_file"
+        echo "Linked Ghostty configuration"
+    else
+        # If no source config exists in dotfiles, check if local config exists in repo
+        local local_config=".config/ghostty/config"
+        if [[ -f "$local_config" ]]; then
+            # Create directory structure in dotfiles
+            mkdir -p "$DOTFILES_DIR/.config/ghostty"
+            # Copy config to dotfiles
+            cp "$local_config" "$source_config"
+            # Create symlink
+            ln -sf "$source_config" "$ghostty_config_file"
+            echo "Copied and linked Ghostty configuration"
+        else
+            echo "Warning: Ghostty config not found, skipping..."
+        fi
+    fi
+}
+
 # Main execution
 main() {
     echo "Starting dotfiles setup..."
@@ -126,6 +165,7 @@ main() {
     create_symlinks
     setup_zprezto
     setup_git
+    setup_ghostty
     
     echo "Dotfiles setup complete!"
 }

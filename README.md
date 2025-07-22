@@ -51,12 +51,11 @@ chmod +x *.sh
 - `neovim` - Modern vim
 
 ### Applications
-- **Terminals**: Ghostty, iTerm2
+- **Terminals**: Ghostty
 - **Development**: Visual Studio Code, Claude
 - **Productivity**: Rectangle, Alfred/Raycast
 - **Security**: 1Password
 - **Communication**: Slack, Discord
-- **Notes**: Notion, Obsidian
 
 ### Shell Environment
 - Zsh with Zprezto framework
@@ -106,6 +105,7 @@ The `dotfiles-setup.sh` script expects these files in your dotfiles repository:
 - `.vimrc`
 - `.tmux.conf`
 - `.editorconfig`
+- `.config/ghostty/config` - Ghostty terminal configuration
 
 If you're using the included setup without a separate dotfiles repo, only the `.tmux.conf` will be configured.
 
@@ -120,6 +120,7 @@ After running the scripts, the following will be configured:
 - SSH key generated (ED25519, copied to clipboard)
 - Basic Git configuration with common aliases
 - Tmux configured with custom key bindings
+- Ghostty terminal configured (if config exists in dotfiles)
 
 ### Manual Steps Required 📋
 

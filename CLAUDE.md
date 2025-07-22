@@ -45,6 +45,7 @@ Manages dotfile symlinks and shell configuration:
 - Sets up Zprezto customizations
 - Creates and configures shell aliases
 - Configures Git aliases
+- Sets up Ghostty terminal configuration
 
 ## Common Commands
 

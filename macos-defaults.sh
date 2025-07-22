@@ -5,6 +5,12 @@
 
 echo "Configuring macOS defaults..."
 
+# Important: Safari settings require Full Disk Access for Terminal
+echo "NOTE: Safari settings require Full Disk Access for Terminal.app"
+echo "If Safari settings don't work, grant access via:"
+echo "System Settings → Privacy & Security → Full Disk Access → Add Terminal"
+echo ""
+
 # Close System Preferences to prevent conflicts
 osascript -e 'tell application "System Preferences" to quit'
 
@@ -230,20 +236,38 @@ defaults write com.apple.dock autohide-time-modifier -float 0
 # Safari & WebKit
 # ----------------------------------------------------------------------
 
-# Note: Safari is sandboxed and some preferences may not be writable
-# These commands may fail but won't affect the rest of the script
+# Note: Safari is sandboxed and requires Full Disk Access for Terminal
+# to properly write preferences. Without it, these commands won't work.
+# Go to System Settings → Privacy & Security → Full Disk Access → Add Terminal
+
+# Quit Safari before making changes
+killall Safari 2>/dev/null || true
 
 # Privacy: don't send search queries to Apple
-defaults write com.apple.Safari UniversalSearchEnabled -bool false 2>/dev/null || true
-defaults write com.apple.Safari SuppressSearchSuggestions -bool true 2>/dev/null || true
+defaults write com.apple.Safari UniversalSearchEnabled -bool false
+defaults write com.apple.Safari SuppressSearchSuggestions -bool true
 
 # Show the full URL in the address bar
-defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true 2>/dev/null || true
+defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 
 # Enable the Develop menu and the Web Inspector
-defaults write com.apple.Safari IncludeDevelopMenu -bool true 2>/dev/null || true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true 2>/dev/null || true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true 2>/dev/null || true
+defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write com.apple.Safari.SandboxBroker ShowDevelopMenu -bool true  # Required for macOS Monterey+
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+
+# Show the bookmarks bar (Favorites bar)
+defaults write com.apple.Safari ShowFavoritesBar -bool true
+defaults write com.apple.Safari ShowFavoritesBar-v2 -bool true
+
+# Show the status bar
+defaults write com.apple.Safari ShowOverlayStatusBar -bool true
+
+# Show the tab bar even with only one tab
+defaults write com.apple.Safari AlwaysShowTabBar -bool true
+
+# Kill preferences daemon to ensure changes are loaded
+killall cfprefsd 2>/dev/null || true
 
 # Terminal
 # ----------------------------------------------------------------------

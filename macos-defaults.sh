@@ -50,7 +50,44 @@ defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
 # Natural scrolling
-defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+
+# Disable "More Gestures" trackpad options
+# Swipe between pages
+defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerHorizSwipeGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerHorizSwipeGesture -int 0
+
+# Swipe between full-screen apps
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFourFingerHorizSwipeGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.fourFingerHorizSwipeGesture -int 0
+
+# Notification Center (already off by default, but let's be explicit)
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadTwoFingerFromRightEdgeSwipeGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.twoFingerFromRightEdgeSwipeGesture -int 0
+
+# Mission Control
+defaults write com.apple.dock expose-animation-duration -float 0.1
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerVertSwipeGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerVertSwipeGesture -int 0
+defaults write com.apple.dock showMissionControlGestureEnabled -bool false
+
+# App Exposé
+defaults write com.apple.dock showAppExposeGestureEnabled -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFourFingerVertSwipeGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.fourFingerVertSwipeGesture -int 0
+
+# Launchpad
+defaults write com.apple.dock showLaunchpadGestureEnabled -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFourFingerPinchGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.fourFingerPinchGesture -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFiveFingerPinchGesture -int 0
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.fiveFingerPinchGesture -int 0
+
+# Show Desktop
+defaults write com.apple.dock showDesktopGestureEnabled -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFourFingerPinchGesture -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFiveFingerPinchGesture -int 0
 
 # Keyboard
 # ----------------------------------------------------------------------
@@ -59,11 +96,19 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
 # Set the fastest keyboard repeat rate (1 = fastest)
-defaults write NSGlobalDomain KeyRepeat -int 1
-defaults write NSGlobalDomain InitialKeyRepeat -int 10
+defaults write NSGlobalDomain KeyRepeat -int 2
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
 
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+# Swap Caps Lock and Control keys
+# This remaps the modifier keys for the built-in keyboard
+# The format is: <caps_lock>,<left_shift>,<left_control>,<left_option>,<left_command>,<right_option>,<right_command>
+# Values: 0=disabled, 1=command, 2=shift, 3=option, 4=control, 5=caps_lock
+# Swapping caps_lock (5) with control (4)
+defaults -currentHost write -g com.apple.keyboard.modifiermapping.1452-636-0 -array-add '<dict><key>HIDKeyboardModifierMappingDst</key><integer>30064771300</integer><key>HIDKeyboardModifierMappingSrc</key><integer>30064771129</integer></dict>'
+defaults -currentHost write -g com.apple.keyboard.modifiermapping.1452-636-0 -array-add '<dict><key>HIDKeyboardModifierMappingDst</key><integer>30064771129</integer><key>HIDKeyboardModifierMappingSrc</key><integer>30064771300</integer></dict>'
 
 # Screen
 # ----------------------------------------------------------------------
@@ -81,6 +126,24 @@ defaults write com.apple.screencapture type -string "png"
 
 # Disable shadow in screenshots
 defaults write com.apple.screencapture disable-shadow -bool true
+
+# Hot Corners
+# Possible values:
+#  0: no-op
+#  2: Mission Control
+#  3: Show application windows
+#  4: Desktop
+#  5: Start screen saver
+#  6: Disable screen saver
+#  7: Dashboard
+# 10: Put display to sleep
+# 11: Launchpad
+# 12: Notification Center
+# 13: Lock Screen
+# 14: Quick Note
+# Top left screen corner → Start screen saver
+defaults write com.apple.dock wvous-tl-corner -int 5
+defaults write com.apple.dock wvous-tl-modifier -int 0
 
 # Finder
 # ----------------------------------------------------------------------
@@ -119,8 +182,14 @@ defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 # Show the ~/Library folder
 chflags nohidden ~/Library
 
-# Show the /Volumes folder
-sudo chflags nohidden /Volumes
+# Show the /Volumes folder (requires sudo)
+if [[ -t 0 ]]; then
+    # Interactive terminal - can prompt for password
+    sudo chflags nohidden /Volumes 2>/dev/null || echo "Note: Could not unhide /Volumes (requires sudo)"
+else
+    # Non-interactive - skip sudo commands
+    echo "Skipping: unhide /Volumes (requires sudo in interactive mode)"
+fi
 
 # Dock
 # ----------------------------------------------------------------------
@@ -161,17 +230,20 @@ defaults write com.apple.dock autohide-time-modifier -float 0
 # Safari & WebKit
 # ----------------------------------------------------------------------
 
+# Note: Safari is sandboxed and some preferences may not be writable
+# These commands may fail but won't affect the rest of the script
+
 # Privacy: don't send search queries to Apple
-defaults write com.apple.Safari UniversalSearchEnabled -bool false
-defaults write com.apple.Safari SuppressSearchSuggestions -bool true
+defaults write com.apple.Safari UniversalSearchEnabled -bool false 2>/dev/null || true
+defaults write com.apple.Safari SuppressSearchSuggestions -bool true 2>/dev/null || true
 
 # Show the full URL in the address bar
-defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
+defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true 2>/dev/null || true
 
 # Enable the Develop menu and the Web Inspector
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+defaults write com.apple.Safari IncludeDevelopMenu -bool true 2>/dev/null || true
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true 2>/dev/null || true
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true 2>/dev/null || true
 
 # Terminal
 # ----------------------------------------------------------------------
@@ -200,12 +272,6 @@ defaults write com.apple.ActivityMonitor SortDirection -int 0
 
 # Other
 # ----------------------------------------------------------------------
-
-# Prevent Time Machine from prompting to use new hard drives as backup volume
-defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
-
-# Disable local Time Machine backups
-hash tmutil &> /dev/null && sudo tmutil disablelocal
 
 echo "macOS defaults configured!"
 echo "Note: Some changes require a logout/restart to take effect."

@@ -5,11 +5,45 @@
 
 set -euo pipefail
 
+# Support both external dotfiles repo and local dotfiles in seed
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+LOCAL_DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)/dotfiles"
+
+# Create symlinks for local dotfiles in seed repository
+create_local_symlinks() {
+    echo "Creating symlinks for local dotfiles..."
+    
+    # Define local dotfiles to symlink
+    # Format: "source:destination"
+    local dotfiles=(
+        "tmux.conf:$HOME/.tmux.conf"
+        "inputrc:$HOME/.inputrc"
+    )
+    
+    # Create symlinks
+    for file in "${dotfiles[@]}"; do
+        IFS=':' read -r source dest <<< "$file"
+        source_path="$LOCAL_DOTFILES_DIR/$source"
+        
+        if [[ -f "$source_path" ]]; then
+            # Backup existing file if it exists and isn't a symlink
+            if [[ -f "$dest" && ! -L "$dest" ]]; then
+                echo "Backing up existing $dest to $dest.backup"
+                mv "$dest" "$dest.backup"
+            fi
+            
+            # Create symlink
+            ln -sf "$source_path" "$dest"
+            echo "Linked $source -> $dest"
+        else
+            echo "Warning: $source_path not found, skipping..."
+        fi
+    done
+}
 
 # Create symlinks for dotfiles
 create_symlinks() {
-    echo "Creating dotfile symlinks..."
+    echo "Creating dotfile symlinks from external repository..."
     
     # Define dotfiles to symlink
     # Format: "source:destination"
@@ -17,7 +51,6 @@ create_symlinks() {
         ".gitconfig:$HOME/.gitconfig"
         ".gitignore_global:$HOME/.gitignore_global"
         ".vimrc:$HOME/.vimrc"
-        ".tmux.conf:$HOME/.tmux.conf"
         ".editorconfig:$HOME/.editorconfig"
     )
     
@@ -118,13 +151,14 @@ setup_ghostty() {
     
     local ghostty_config_dir="$HOME/.config/ghostty"
     local ghostty_config_file="$ghostty_config_dir/config"
-    local source_config="$DOTFILES_DIR/.config/ghostty/config"
+    local local_source_config="$LOCAL_DOTFILES_DIR/ghostty-config"
+    local external_source_config="$DOTFILES_DIR/.config/ghostty/config"
     
     # Create config directory if it doesn't exist
     mkdir -p "$ghostty_config_dir"
     
-    # Check if source config exists
-    if [[ -f "$source_config" ]]; then
+    # Check local seed repository first
+    if [[ -f "$local_source_config" ]]; then
         # Backup existing config if it exists and isn't a symlink
         if [[ -f "$ghostty_config_file" && ! -L "$ghostty_config_file" ]]; then
             echo "Backing up existing Ghostty config to $ghostty_config_file.backup"
@@ -132,22 +166,21 @@ setup_ghostty() {
         fi
         
         # Create symlink
-        ln -sf "$source_config" "$ghostty_config_file"
-        echo "Linked Ghostty configuration"
-    else
-        # If no source config exists in dotfiles, check if local config exists in repo
-        local local_config=".config/ghostty/config"
-        if [[ -f "$local_config" ]]; then
-            # Create directory structure in dotfiles
-            mkdir -p "$DOTFILES_DIR/.config/ghostty"
-            # Copy config to dotfiles
-            cp "$local_config" "$source_config"
-            # Create symlink
-            ln -sf "$source_config" "$ghostty_config_file"
-            echo "Copied and linked Ghostty configuration"
-        else
-            echo "Warning: Ghostty config not found, skipping..."
+        ln -sf "$local_source_config" "$ghostty_config_file"
+        echo "Linked Ghostty configuration from seed repository"
+    elif [[ -f "$external_source_config" ]]; then
+        # Use external dotfiles repository
+        # Backup existing config if it exists and isn't a symlink
+        if [[ -f "$ghostty_config_file" && ! -L "$ghostty_config_file" ]]; then
+            echo "Backing up existing Ghostty config to $ghostty_config_file.backup"
+            mv "$ghostty_config_file" "$ghostty_config_file.backup"
         fi
+        
+        # Create symlink
+        ln -sf "$external_source_config" "$ghostty_config_file"
+        echo "Linked Ghostty configuration from external dotfiles"
+    else
+        echo "Warning: Ghostty config not found, skipping..."
     fi
 }
 
@@ -155,15 +188,20 @@ setup_ghostty() {
 main() {
     echo "Starting dotfiles setup..."
     
-    # Ensure dotfiles directory exists
-    if [[ ! -d "$DOTFILES_DIR" ]]; then
-        echo "Error: Dotfiles directory not found at $DOTFILES_DIR"
-        echo "Please clone your dotfiles repository first."
-        exit 1
+    # Create symlinks for local dotfiles in seed repository
+    if [[ -d "$LOCAL_DOTFILES_DIR" ]]; then
+        create_local_symlinks
     fi
     
-    create_symlinks
-    setup_zprezto
+    # Handle external dotfiles if they exist
+    if [[ -d "$DOTFILES_DIR" ]]; then
+        create_symlinks
+        setup_zprezto
+    else
+        echo "Note: External dotfiles directory not found at $DOTFILES_DIR"
+        echo "Skipping external dotfiles setup..."
+    fi
+    
     setup_git
     setup_ghostty
     

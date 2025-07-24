@@ -86,12 +86,18 @@ chmod +x *.sh
 
 ### Before Running
 
-1. **Update Git Configuration** - Edit `setup.sh`:
-   ```bash
-   # Lines 133-134 - Your Git identity
-   git config --global user.name "Your Name"
-   git config --global user.email "your-email@example.com"
-   ```
+1. **Update Personal Settings**:
+   - **Git Configuration** - Edit `setup.sh`:
+     ```bash
+     # Lines 172-173 - Your Git identity
+     git config --global user.name "Your Name"
+     git config --global user.email "your-email@example.com"
+     ```
+   - **Computer Name** - Edit `macos-defaults.sh`:
+     ```bash
+     # Line 20 - Your computer name
+     COMPUTER_NAME="your-computer-name"
+     ```
 
 2. **Dotfiles Setup** - Choose one option:
    - **Option A**: Use included config files (default)

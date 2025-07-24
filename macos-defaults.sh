@@ -14,6 +14,20 @@ echo ""
 # Close System Preferences to prevent conflicts
 osascript -e 'tell application "System Preferences" to quit'
 
+# Computer Name and Hostname
+# ----------------------------------------------------------------------
+# Set computer name (as it appears in Finder)
+COMPUTER_NAME="johns-mac"
+echo "Setting computer name to: $COMPUTER_NAME"
+
+# Set all the hostname types
+sudo scutil --set ComputerName "$COMPUTER_NAME"
+sudo scutil --set HostName "$COMPUTER_NAME"
+sudo scutil --set LocalHostName "$COMPUTER_NAME"
+
+# Flush DNS cache
+sudo dscacheutil -flushcache
+
 # General UI/UX
 # ----------------------------------------------------------------------
 

@@ -49,6 +49,12 @@ chmod +x *.sh
 - `fzf` - Fuzzy finder
 - `tmux` - Terminal multiplexer
 - `neovim` - Modern vim
+- `emacs` - Extensible text editor
+
+### Emacs Configuration
+- Automatically clones configuration from [jra3/dot-emacs](https://github.com/jra3/dot-emacs)
+- Installs to `~/.emacs.d` (standard location)
+- Supports native compilation if installed with `--with-native-compilation`
 
 ### Applications
 - **Terminals**: Ghostty

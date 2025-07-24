@@ -62,7 +62,46 @@ fi
 log "Updating Homebrew..."
 brew update
 
-# 4. Install packages from Brewfile
+# 4. Setup SSH key early (needed for GitHub access)
+if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
+    log "Generating SSH key..."
+    ssh-keygen -t ed25519 -C "nop@porcnick.com" -f "$HOME/.ssh/id_ed25519" -N ""
+    
+    # Start ssh-agent and add key
+    eval "$(ssh-agent -s)"
+    ssh-add "$HOME/.ssh/id_ed25519"
+    
+    # Copy public key to clipboard
+    pbcopy < "$HOME/.ssh/id_ed25519.pub"
+    
+    echo ""
+    log "SSH public key has been copied to your clipboard!"
+    echo ""
+    echo "Please add this key to your GitHub account:"
+    echo "1. Go to https://github.com/settings/keys"
+    echo "2. Click 'New SSH key'"
+    echo "3. Paste the key from your clipboard"
+    echo "4. Give it a descriptive title (e.g., 'MacBook Pro - $(date +%Y-%m-%d)')"
+    echo ""
+    echo "Your public key is:"
+    echo "----------------------------------------"
+    cat "$HOME/.ssh/id_ed25519.pub"
+    echo "----------------------------------------"
+    echo ""
+    read -p "Press Enter after you've added the key to GitHub..."
+    
+    # Test GitHub connection
+    log "Testing GitHub SSH connection..."
+    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+        log "GitHub SSH connection successful!"
+    else
+        warning "GitHub SSH connection test failed. You may need to troubleshoot."
+    fi
+else
+    log "SSH key already exists"
+fi
+
+# 5. Install packages from Brewfile
 if [[ -f "Brewfile" ]]; then
     log "Installing packages from Brewfile..."
     brew bundle
@@ -70,7 +109,7 @@ else
     warning "Brewfile not found. Skipping brew bundle."
 fi
 
-# 5. Setup dotfiles directory
+# 6. Setup dotfiles directory
 DOTFILES_DIR="$HOME/.dotfiles"
 
 # Check if we have a dotfiles repo URL or use local files
@@ -98,7 +137,7 @@ fi
 # 6. Setup Zprezto
 if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
     log "Installing Zprezto..."
-    git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+    git clone --recursive git@github.com:jra3/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
     
     # Create Zsh configuration files
     # Use zsh to handle the glob pattern
@@ -129,28 +168,26 @@ else
     warning "macos-defaults.sh not found. Skipping macOS configuration."
 fi
 
-# 9. Setup SSH key
-if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
-    log "Generating SSH key..."
-    ssh-keygen -t ed25519 -C "nop@porcnick.com" -f "$HOME/.ssh/id_ed25519" -N ""
-    
-    # Start ssh-agent and add key
-    eval "$(ssh-agent -s)"
-    ssh-add "$HOME/.ssh/id_ed25519"
-    
-    # Copy public key to clipboard
-    pbcopy < "$HOME/.ssh/id_ed25519.pub"
-    log "SSH public key copied to clipboard. Add it to GitHub/GitLab."
-else
-    log "SSH key already exists"
-fi
-
-# 10. Configure Git
+# 9. Configure Git
 log "Configuring Git..."
 git config --global user.name "John Allen"
 git config --global user.email "nop@porcnick.com"
 git config --global init.defaultBranch main
 git config --global pull.rebase false
+
+# 10. Setup Emacs configuration
+log "Setting up Emacs configuration..."
+EMACS_CONFIG_DIR="$HOME/.emacs.d"
+EMACS_REPO="https://github.com/jra3/dot-emacs.git"
+
+# Clone Emacs configuration
+if [[ ! -d "$EMACS_CONFIG_DIR" ]]; then
+    log "Cloning Emacs configuration..."
+    git clone "$EMACS_REPO" "$EMACS_CONFIG_DIR"
+else
+    log "Emacs configuration already exists. Pulling latest changes..."
+    cd "$EMACS_CONFIG_DIR" && git pull
+fi
 
 # 11. Final steps reminder
 echo ""
@@ -158,7 +195,6 @@ log "Setup mostly complete! Manual steps remaining:"
 echo "  1. Sign in to iCloud"
 echo "  2. Configure System Preferences that require authentication"
 echo "  3. Sign in to apps (Claude, etc.)"
-echo "  4. Add SSH key to GitHub/GitLab (already in clipboard)"
-echo "  5. Restore application preferences from backups"
+echo "  4. Restore application preferences from backups"
 echo ""
 log "You may need to restart your shell or computer for all changes to take effect."

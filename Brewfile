@@ -19,6 +19,7 @@ brew "eza"  # Modern ls replacement
 brew "zoxide"  # Smarter cd command
 brew "tmux"
 brew "neovim"
+brew "emacs"
 
 # Development tools
 brew "node"

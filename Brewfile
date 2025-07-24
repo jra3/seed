@@ -49,6 +49,7 @@ cask "discord"
 cask "notion"
 cask "obsidian"
 cask "raycast"  # Alternative to Alfred
+cask "tailscale"  # Zero config VPN
 
 # Fonts
 cask "font-jetbrains-mono"

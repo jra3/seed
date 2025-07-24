@@ -23,52 +23,57 @@ INSTALL_DIR="$HOME/.seed"
 
 # Main installation
 main() {
-    print_info "Starting macOS Dev Setup bootstrap..."
-    
-    # Check if running on macOS
-    if [[ "$(uname)" != "Darwin" ]]; then
-        print_error "This script is designed for macOS only"
-        exit 1
-    fi
-    
-    # Check if seed directory already exists
-    if [[ -d "$INSTALL_DIR" ]]; then
-        print_error "Directory $INSTALL_DIR already exists"
-        print_info "To reinstall, please remove it first: rm -rf $INSTALL_DIR"
-        exit 1
-    fi
-    
-    # Clone the repository
-    print_info "Cloning seed repository to $INSTALL_DIR..."
-    if git clone "$REPO_URL" "$INSTALL_DIR"; then
-        print_success "Repository cloned successfully"
-    else
-        print_error "Failed to clone repository"
-        exit 1
-    fi
-    
-    # Change to the installation directory
-    cd "$INSTALL_DIR"
-    
-    # Make scripts executable
-    print_info "Making scripts executable..."
-    chmod +x *.sh
-    
-    # Run the setup script
-    print_info "Starting setup process..."
-    echo ""
-    echo "========================================"
-    echo "Running setup.sh - this may take a while"
-    echo "========================================"
-    echo ""
-    
-    # Execute the main setup script
-    ./setup.sh
-    
-    print_success "Bootstrap complete!"
-    echo ""
-    echo "The seed repository has been cloned to: $INSTALL_DIR"
-    echo "You can run individual scripts from there if needed."
+print_info "Starting macOS Dev Setup bootstrap..."
+
+# Check if running on macOS
+if [[ "$(uname)" != "Darwin" ]]; then
+    print_error "This script is designed for macOS only"
+    exit 1
+fi
+
+# Check if seed directory already exists
+if [[ -d "$INSTALL_DIR" ]]; then
+    print_error "Directory $INSTALL_DIR already exists"
+    print_info "To reinstall, please remove it first: rm -rf $INSTALL_DIR"
+    exit 1
+fi
+
+# Clone the repository
+print_info "Cloning seed repository to $INSTALL_DIR..."
+if git clone "$REPO_URL" "$INSTALL_DIR"; then
+    print_success "Repository cloned successfully"
+else
+    print_error "Failed to clone repository"
+    exit 1
+fi
+
+# Change to the installation directory
+cd "$INSTALL_DIR"
+
+# Update remote to use SSH instead of HTTPS
+print_info "Updating git remote to use SSH..."
+git remote set-url origin git@github.com:jra3/seed.git
+print_success "Git remote updated to SSH"
+
+# Make scripts executable
+print_info "Making scripts executable..."
+chmod +x *.sh
+
+# Run the setup script
+print_info "Starting setup process..."
+echo ""
+echo "========================================"
+echo "Running setup.sh - this may take a while"
+echo "========================================"
+echo ""
+
+# Execute the main setup script
+./setup.sh
+
+print_success "Bootstrap complete!"
+echo ""
+echo "The seed repository has been cloned to: $INSTALL_DIR"
+echo "You can run individual scripts from there if needed."
 }
 
 # Run main function

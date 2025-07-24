@@ -13,10 +13,23 @@ Automated setup scripts for a fresh macOS installation, designed to get your dev
 
 ## Quick Start
 
+### Option 1: One-Line Installation (Recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jra3/seed/main/bootstrap.sh | bash
+```
+
+This will:
+- Clone the repository to `~/.seed`
+- Make all scripts executable
+- Run the setup automatically
+
+### Option 2: Manual Installation
+
 ```bash
 # Clone this repository
-git clone https://github.com/YOUR_USERNAME/macos-dev-setup.git
-cd macos-dev-setup
+git clone https://github.com/jra3/seed.git
+cd seed
 
 # Make scripts executable
 chmod +x *.sh

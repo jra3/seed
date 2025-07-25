@@ -77,10 +77,13 @@ chmod +x *.sh
 - **Communication**: Slack, Discord
 
 ### Shell Environment
-- Zsh with Zprezto framework
-- Custom aliases and functions
-- Optimized shell startup time
-- Git-aware prompt
+- Minimal Zsh configuration (no heavy frameworks)
+- Fast startup time
+- Essential history settings
+- Basic completion configuration
+- Simple git branch display in prompt
+- Common aliases
+- Support for local overrides
 
 ## Customization
 
@@ -89,9 +92,12 @@ chmod +x *.sh
 1. **Update Personal Settings**:
    - **Git Configuration** - Edit `setup.sh`:
      ```bash
-     # Lines 172-173 - Your Git identity
+     # Lines 173-174 - Your Git identity
      git config --global user.name "Your Name"
      git config --global user.email "your-email@example.com"
+     
+     # Line 68 - SSH key email
+     ssh-keygen -t ed25519 -C "your-email@example.com"
      ```
    - **Computer Name** - Edit `macos-defaults.sh`:
      ```bash
@@ -140,12 +146,14 @@ If you're using the included setup without a separate dotfiles repo, only the `.
 
 After running the scripts, the following will be configured:
 - Development tools and applications installed via Homebrew
-- Zsh with Zprezto framework installed
+- Minimal Zsh configuration installed (fast, no frameworks)
 - System preferences applied (Finder, Dock, keyboard, etc.)
 - SSH key generated (ED25519, copied to clipboard)
 - Basic Git configuration with common aliases
 - Tmux configured with custom key bindings
 - Ghostty terminal configured (if config exists in dotfiles)
+- Ripgrep configuration installed
+- SQLite configuration with enhanced display settings
 
 ### Manual Steps Required 📋
 
@@ -225,5 +233,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 Inspired by the macOS setup community and various dotfile repositories. Special thanks to:
 - [Homebrew](https://brew.sh/) for package management
-- [Zprezto](https://github.com/sorin-ionescu/prezto) for Zsh configuration
 - The developers of all the excellent tools included

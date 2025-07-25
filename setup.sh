@@ -134,23 +134,6 @@ else
     # Add other config files here as they are created
 fi
 
-# 6. Setup Zprezto
-if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
-    log "Installing Zprezto..."
-    git clone --recursive git@github.com:jra3/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
-    
-    # Create Zsh configuration files
-    # Use zsh to handle the glob pattern
-    zsh -c '
-        setopt EXTENDED_GLOB
-        for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-            ln -sf "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-        done
-    '
-else
-    log "Zprezto already installed"
-fi
-
 # 7. Symlink dotfiles
 log "Creating dotfile symlinks..."
 if [[ -f "$DOTFILES_DIR/dotfiles-setup.sh" ]]; then

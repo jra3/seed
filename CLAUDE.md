@@ -14,11 +14,10 @@ The entry point that coordinates the entire setup process. Runs all other script
 2. Installs Homebrew
 3. Runs `brew bundle` to install packages from Brewfile
 4. Clones user's dotfiles repository
-5. Sets up Zprezto
-6. Runs dotfiles-setup.sh
-7. Runs macos-defaults.sh
-8. Generates SSH keys
-9. Configures Git
+5. Runs dotfiles-setup.sh (sets up minimal zsh configuration)
+6. Runs macos-defaults.sh
+7. Generates SSH keys
+8. Configures Git
 
 ### Brewfile - Package Declaration
 Declarative list of packages to install via Homebrew. Organized into:
@@ -42,8 +41,9 @@ Configures macOS system preferences programmatically using `defaults write` comm
 ### dotfiles-setup.sh - Configuration Management
 Manages dotfile symlinks and shell configuration:
 - Creates symlinks from dotfiles repository to home directory
-- Sets up Zprezto customizations
-- Creates and configures shell aliases
+- Sets up minimal zsh configuration (zshenv, zprofile, zshrc)
+- Configures ripgrep with custom settings
+- Configures SQLite with enhanced display settings
 - Configures Git aliases
 - Sets up Ghostty terminal configuration
 
@@ -81,9 +81,9 @@ brew cleanup
 3. **Idempotency**: Scripts check for existing installations/configurations before making changes, allowing safe re-runs.
 
 4. **User Configuration Required**: The scripts expect users to modify hardcoded values:
-   - GitHub username in setup.sh line 74
-   - Git user name/email in setup.sh lines 133-134
-   - Email for SSH key in setup.sh line 118
+   - Git user name/email in setup.sh lines 173-174
+   - Email for SSH key in setup.sh line 68
+   - Computer name in macos-defaults.sh line 20
 
 5. **Manual Steps Documentation**: The README clearly documents steps that cannot be automated (iCloud sign-in, app authentication, etc.).
 

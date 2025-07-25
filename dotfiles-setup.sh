@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Dotfiles Setup Script
-# This script manages dotfiles and Zprezto configuration
+# This script manages dotfiles and minimal zsh configuration
 
 set -euo pipefail
 
@@ -75,54 +75,57 @@ create_symlinks() {
     done
 }
 
-# Setup Zprezto customizations
-setup_zprezto() {
-    echo "Setting up Zprezto customizations..."
+# Setup minimal zsh configuration
+setup_zsh() {
+    echo "Setting up minimal zsh configuration..."
     
-    # Link custom Zprezto configuration if it exists
-    if [[ -f "$DOTFILES_DIR/.zpreztorc" ]]; then
-        ln -sf "$DOTFILES_DIR/.zpreztorc" "$HOME/.zpreztorc"
-        echo "Linked custom .zpreztorc"
+    local zsh_files=("zshenv" "zprofile" "zshrc")
+    local script_dir="$(cd "$(dirname "$0")" && pwd)"
+    
+    # Link zsh configuration files
+    for file in "${zsh_files[@]}"; do
+        source_path="$script_dir/$file"
+        dest_path="$HOME/.$file"
+        
+        if [[ -f "$source_path" ]]; then
+            # Backup existing file if it exists and isn't a symlink
+            if [[ -f "$dest_path" && ! -L "$dest_path" ]]; then
+                echo "Backing up existing .$file to .$file.backup"
+                mv "$dest_path" "$dest_path.backup"
+            fi
+            
+            # Create symlink
+            ln -sf "$source_path" "$dest_path"
+            echo "Linked $file -> .$file"
+        else
+            echo "Warning: $source_path not found, skipping..."
+        fi
+    done
+    
+    # Link ripgreprc
+    local ripgreprc_source="$script_dir/ripgreprc"
+    local ripgreprc_dest="$HOME/.ripgreprc"
+    
+    if [[ -f "$ripgreprc_source" ]]; then
+        if [[ -f "$ripgreprc_dest" && ! -L "$ripgreprc_dest" ]]; then
+            echo "Backing up existing .ripgreprc to .ripgreprc.backup"
+            mv "$ripgreprc_dest" "$ripgreprc_dest.backup"
+        fi
+        ln -sf "$ripgreprc_source" "$ripgreprc_dest"
+        echo "Linked ripgreprc -> .ripgreprc"
     fi
     
-    # Link custom zsh configuration
-    if [[ -f "$DOTFILES_DIR/.zshrc" ]]; then
-        ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-        echo "Linked custom .zshrc"
-    fi
+    # Link sqliterc
+    local sqliterc_source="$script_dir/sqliterc"
+    local sqliterc_dest="$HOME/.sqliterc"
     
-    # Create custom aliases file if it doesn't exist
-    if [[ ! -f "$HOME/.zsh_aliases" ]]; then
-        cat > "$HOME/.zsh_aliases" << 'EOF'
-# Custom aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias g='git'
-alias gs='git status'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git pull'
-alias gco='git checkout'
-alias gbr='git branch'
-alias glog='git log --oneline --graph --decorate'
-
-# Use modern replacements if available
-command -v eza >/dev/null 2>&1 && alias ls='eza'
-command -v bat >/dev/null 2>&1 && alias cat='bat'
-command -v fd >/dev/null 2>&1 && alias find='fd'
-command -v rg >/dev/null 2>&1 && alias grep='rg'
-EOF
-        echo "Created .zsh_aliases"
-    fi
-    
-    # Ensure aliases are sourced in .zshrc
-    if ! grep -q "source.*\.zsh_aliases" "$HOME/.zshrc" 2>/dev/null; then
-        echo "" >> "$HOME/.zshrc"
-        echo "# Source custom aliases" >> "$HOME/.zshrc"
-        echo "[[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases" >> "$HOME/.zshrc"
+    if [[ -f "$sqliterc_source" ]]; then
+        if [[ -f "$sqliterc_dest" && ! -L "$sqliterc_dest" ]]; then
+            echo "Backing up existing .sqliterc to .sqliterc.backup"
+            mv "$sqliterc_dest" "$sqliterc_dest.backup"
+        fi
+        ln -sf "$sqliterc_source" "$sqliterc_dest"
+        echo "Linked sqliterc -> .sqliterc"
     fi
 }
 
@@ -193,10 +196,12 @@ main() {
         create_local_symlinks
     fi
     
+    # Setup minimal zsh configuration
+    setup_zsh
+    
     # Handle external dotfiles if they exist
     if [[ -d "$DOTFILES_DIR" ]]; then
         create_symlinks
-        setup_zprezto
     else
         echo "Note: External dotfiles directory not found at $DOTFILES_DIR"
         echo "Skipping external dotfiles setup..."

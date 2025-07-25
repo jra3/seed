@@ -36,6 +36,7 @@ brew "lazygit"
 brew "tldr"
 
 # Applications (Casks)
+cask "docker"  # Docker Desktop
 cask "ghostty"
 cask "claude"
 cask "visual-studio-code"

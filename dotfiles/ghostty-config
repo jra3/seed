@@ -1,8 +1,8 @@
 # Ghostty Configuration
 
 # Font settings
-font-size = 16
-font-family = "JetBrains Mono"
+font-size = 22
+font-family = "Monaco"
 
 # Color scheme - Built-in theme
 theme = "Nocturnal Winter"

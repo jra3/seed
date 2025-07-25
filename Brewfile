@@ -26,8 +26,6 @@ brew "node"
 brew "python"
 brew "go"
 brew "rust"
-brew "docker"
-brew "docker-compose"
 
 # CLI productivity
 brew "fzf"
@@ -36,7 +34,9 @@ brew "lazygit"
 brew "tldr"
 
 # Applications (Casks)
-cask "docker"  # Docker Desktop
+# Note: Docker Desktop requires sudo for installation, install manually:
+# brew install --cask docker-desktop
+cask "docker-desktop"  # Docker Desktop
 cask "ghostty"
 cask "claude"
 cask "visual-studio-code"

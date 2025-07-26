@@ -19,13 +19,16 @@ brew "eza"  # Modern ls replacement
 brew "zoxide"  # Smarter cd command
 brew "tmux"
 brew "neovim"
+brew "watch"
 brew "emacs"
+brew "libtool"  # GNU libtool, provides glibtool for building packages
 
 # Development tools
 brew "node"
 brew "python"
 brew "go"
 brew "rust"
+brew "cmake"
 
 # CLI productivity
 brew "fzf"

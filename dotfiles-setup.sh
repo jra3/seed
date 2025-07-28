@@ -39,6 +39,30 @@ create_local_symlinks() {
             echo "Warning: $source_path not found, skipping..."
         fi
     done
+    
+    # Create tmux config directory and symlink scripts
+    if [[ -d "$LOCAL_DOTFILES_DIR/tmux" ]]; then
+        echo "Setting up tmux notification scripts..."
+        mkdir -p "$HOME/.config/tmux"
+        
+        # Symlink all tmux scripts
+        for script in "$LOCAL_DOTFILES_DIR/tmux"/*.sh; do
+            if [[ -f "$script" ]]; then
+                script_name=$(basename "$script")
+                dest_path="$HOME/.config/tmux/$script_name"
+                
+                # Backup existing script if it exists and isn't a symlink
+                if [[ -f "$dest_path" && ! -L "$dest_path" ]]; then
+                    echo "Backing up existing $dest_path to $dest_path.backup"
+                    mv "$dest_path" "$dest_path.backup"
+                fi
+                
+                # Create symlink
+                ln -sf "$script" "$dest_path"
+                echo "Linked tmux/$script_name -> .config/tmux/$script_name"
+            fi
+        done
+    fi
 }
 
 # Create symlinks for dotfiles

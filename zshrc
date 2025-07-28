@@ -28,6 +28,11 @@ setopt INTERACTIVE_COMMENTS # Allow comments in interactive shell
 setopt RC_QUOTES            # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'
 
 # Completion
+# Add Homebrew completions to fpath before compinit
+if [[ -d /opt/homebrew/share/zsh/site-functions ]]; then
+    fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+fi
+
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
@@ -35,6 +40,8 @@ setopt COMPLETE_ALIASES
 
 # Shell Integrations and Completions
 # ===================================
+
+# Git completions are loaded from fpath automatically
 
 # fzf - Fuzzy finder
 if command -v fzf &>/dev/null; then
@@ -47,12 +54,49 @@ if command -v fzf &>/dev/null; then
     export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
-    export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+    
+    # Enhanced fzf options with preview window
+    export FZF_DEFAULT_OPTS='
+        --height 40% 
+        --layout=reverse 
+        --border 
+        --inline-info
+        --color=dark
+        --color=fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f
+        --color=info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
+        --bind="ctrl-/:toggle-preview"
+        --bind="ctrl-u:preview-page-up"
+        --bind="ctrl-d:preview-page-down"
+    '
+    
+    # Preview configuration for files (CTRL-T)
+    export FZF_CTRL_T_OPTS="
+        --preview 'bat -n --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null || echo \"No preview available\"'
+        --preview-window=right:50%:hidden
+        --bind='ctrl-/:toggle-preview'
+    "
+    
+    # Preview configuration for directories (ALT-C)
+    export FZF_ALT_C_OPTS="
+        --preview 'eza --tree --level=2 --color=always {} 2>/dev/null || tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'
+        --preview-window=right:50%:hidden
+        --bind='ctrl-/:toggle-preview'
+    "
+    
+    # Better history search (CTRL-R)
+    export FZF_CTRL_R_OPTS="
+        --preview 'echo {}'
+        --preview-window=down:3:wrap
+        --bind='ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+        --header='Press CTRL-Y to copy command to clipboard'
+    "
 fi
 
 # zoxide - Smarter cd command
 if command -v zoxide &>/dev/null; then
     eval "$(zoxide init zsh)"
+    # fzf integration for zoxide
+    export _ZO_FZF_OPTS="$FZF_DEFAULT_OPTS --preview 'eza --tree --level=2 --color=always {2} 2>/dev/null || ls -la {2} 2>/dev/null'"
 fi
 
 # GitHub CLI completion
@@ -79,7 +123,7 @@ fi
 # Rust/Cargo completions are already in fpath via Homebrew
 # The following tools have zsh completions automatically loaded from
 # /opt/homebrew/share/zsh/site-functions/:
-# - bat, cargo, eza, fd, gh, ripgrep, tldr, zoxide
+# - bat, cargo, eza, fd, gh, git, ripgrep, tldr, zoxide
 
 # Key bindings
 bindkey -e
@@ -230,6 +274,15 @@ alias -g H='| head'
 alias -g T='| tail'
 alias -g NE='2> /dev/null'
 alias -g NUL='> /dev/null 2>&1'
+alias -g F='| fzf'
+
+# fzf-specific aliases
+alias vf='fe'  # vim/edit files with fzf
+alias cdf='fcd'  # cd with fzf
+alias gcb='fbr'  # git checkout branch with fzf
+alias glog='fshow'  # git log browser
+alias rgf='frg'  # ripgrep with fzf
+alias killf='fkill'  # kill process with fzf
 
 # Functions
 ut() {
@@ -267,6 +320,79 @@ extract() {
     fi
 }
 
+# fzf-powered functions
+# Kill process
+fkill() {
+    local pid
+    pid=$(ps -ef | sed 1d | fzf -m --header='[kill process]' | awk '{print $2}')
+    
+    if [ "x$pid" != "x" ]; then
+        echo $pid | xargs kill -${1:-9}
+    fi
+}
+
+# Git branch selector
+fbr() {
+    local branches branch
+    branches=$(git --no-pager branch -vv --color=always) &&
+    branch=$(echo "$branches" | fzf +m --ansi --header='[git branch]') &&
+    git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+}
+
+# Git commit browser
+fshow() {
+    git log --graph --color=always \
+        --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+        --header='[git log] Press CTRL-S to toggle sort' \
+        --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --color=always' \
+        --bind "enter:execute:
+            (grep -o '[a-f0-9]\{7,\}' | xargs git show --color=always | less -R) <<< {}"
+}
+
+# Search and edit files
+fe() {
+    local files
+    IFS=$'\n' files=($(fzf --query="$1" --multi --select-1 --exit-0 \
+        --preview 'bat -n --color=always --line-range :500 {} 2>/dev/null || cat {}' \
+        --preview-window=right:50%:hidden \
+        --bind='ctrl-/:toggle-preview'))
+    [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
+}
+
+# Change to selected directory (including hidden)
+fcd() {
+    local dir
+    dir=$(fd --type d --hidden --follow --exclude .git . ${1:-.} 2>/dev/null | fzf +m \
+        --preview 'eza --tree --level=2 --color=always {} 2>/dev/null || tree -C {} 2>/dev/null || ls -la {}' \
+        --preview-window=right:50%:hidden \
+        --bind='ctrl-/:toggle-preview') && cd "$dir"
+}
+
+# Search history and execute
+fh() {
+    eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
+}
+
+# Find and open in browser
+fopen() {
+    local file
+    file=$(fzf --query="$1" --select-1 --exit-0 \
+        --preview 'bat -n --color=always --line-range :500 {} 2>/dev/null || cat {}' \
+        --preview-window=right:50%:hidden \
+        --bind='ctrl-/:toggle-preview')
+    [[ -n "$file" ]] && open "$file"
+}
+
+# Search content in files with ripgrep
+frg() {
+    local file line
+    read -r file line <<<"$(rg --no-heading --line-number --color=always "${*:-}" | fzf -d ':' -n 2.. --ansi --no-sort --preview-window 'down:50%:+{2}' --preview 'bat --color=always {1} --highlight-line {2}')"
+    if [[ -n "$file" ]]; then
+        ${EDITOR:-vim} "$file" "+$line"
+    fi
+}
+
 # Environment
 export EDITOR='emacs -nw -q'
 export VISUAL='emacs -nw -q'
@@ -277,6 +403,7 @@ export LESS='-F -g -i -M -R -S -w -X -z-4'
 path=(
     $HOME/bin
     $HOME/.local/bin
+    $HOME/go/bin
     /usr/local/bin
     $path
 )

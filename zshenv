@@ -38,6 +38,7 @@ fi
 
 # Go
 export GOPATH="$HOME/go"
+export PATH="$HOME/go/bin:$PATH"
 
 # Load local environment if exists
 [[ -f ~/.zshenv.local ]] && source ~/.zshenv.local

@@ -29,6 +29,7 @@ brew "python"
 brew "go"
 brew "rust"
 brew "cmake"
+brew "qemu"
 
 # CLI productivity
 brew "fzf"
@@ -54,6 +55,7 @@ cask "notion"
 cask "obsidian"
 cask "raycast"  # Alternative to Alfred
 cask "tailscale"  # Zero config VPN
+cask "syncthing"  # Continuous file synchronization
 
 # Fonts
 cask "font-jetbrains-mono"

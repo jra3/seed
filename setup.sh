@@ -172,6 +172,16 @@ else
     cd "$EMACS_CONFIG_DIR" && git pull
 fi
 
+# Install treesitter grammars for Emacs
+log "Installing treesitter grammars for Emacs..."
+if command -v emacs &> /dev/null; then
+    emacs --batch --eval "(progn (require 'treesit) (treesit-install-all-languages))" 2>/dev/null || {
+        log "Note: treesit-install-all-languages failed. This may require manual configuration in Emacs."
+    }
+else
+    log "Warning: Emacs not found. Skipping treesitter grammar installation."
+fi
+
 # 11. Final steps reminder
 echo ""
 log "Setup mostly complete! Manual steps remaining:"

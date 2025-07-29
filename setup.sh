@@ -5,6 +5,31 @@
 
 set -euo pipefail
 
+# Load environment variables if .env exists
+if [[ -f ".env" ]]; then
+    set -a  # automatically export all variables
+    source .env
+    set +a  # turn off automatic export
+else
+    # Check if .env.example exists and inform user
+    if [[ -f ".env.example" ]]; then
+        error "No .env file found. Please copy .env.example to .env and configure your settings."
+        echo "Run: cp .env.example .env"
+        echo "Then edit .env with your personal configuration."
+        exit 1
+    fi
+fi
+
+# Set defaults for required variables
+GIT_USER_NAME="${GIT_USER_NAME:-Your Name}"
+GIT_USER_EMAIL="${GIT_USER_EMAIL:-your.email@example.com}"
+SSH_KEY_EMAIL="${SSH_KEY_EMAIL:-$GIT_USER_EMAIL}"
+SSH_KEY_COMMENT="${SSH_KEY_COMMENT:-$(hostname)}"
+COMPUTER_NAME="${COMPUTER_NAME:-$(hostname)}"
+HOSTNAME="${HOSTNAME:-$COMPUTER_NAME}"
+LOCAL_HOSTNAME="${LOCAL_HOSTNAME:-$COMPUTER_NAME}"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -65,7 +90,7 @@ brew update
 # 4. Setup SSH key early (needed for GitHub access)
 if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
     log "Generating SSH key..."
-    ssh-keygen -t ed25519 -C "nop@porcnick.com" -f "$HOME/.ssh/id_ed25519" -N ""
+    ssh-keygen -t ed25519 -C "$SSH_KEY_EMAIL" -f "$HOME/.ssh/id_ed25519" -N ""
     
     # Start ssh-agent and add key
     eval "$(ssh-agent -s)"
@@ -110,7 +135,6 @@ else
 fi
 
 # 6. Setup dotfiles directory
-DOTFILES_DIR="$HOME/.dotfiles"
 
 # Check if we have a dotfiles repo URL or use local files
 DOTFILES_REPO="${DOTFILES_REPO:-}"  # Can be set as environment variable
@@ -153,8 +177,8 @@ fi
 
 # 9. Configure Git
 log "Configuring Git..."
-git config --global user.name "John Allen"
-git config --global user.email "nop@porcnick.com"
+git config --global user.name "$GIT_USER_NAME"
+git config --global user.email "$GIT_USER_EMAIL"
 git config --global init.defaultBranch main
 git config --global pull.rebase false
 

@@ -89,30 +89,30 @@ chmod +x *.sh
 
 ### Before Running
 
-1. **Update Personal Settings**:
-   - **Git Configuration** - Edit `setup.sh`:
-     ```bash
-     # Lines 173-174 - Your Git identity
-     git config --global user.name "Your Name"
-     git config --global user.email "your-email@example.com"
-     
-     # Line 68 - SSH key email
-     ssh-keygen -t ed25519 -C "your-email@example.com"
-     ```
-   - **Computer Name** - Edit `macos-defaults.sh`:
-     ```bash
-     # Line 20 - Your computer name
-     COMPUTER_NAME="your-computer-name"
-     ```
+1. **Create your configuration file**:
+   ```bash
+   cp .env.example .env
+   ```
 
-2. **Dotfiles Setup** - Choose one option:
-   - **Option A**: Use included config files (default)
-     - The setup will use the `.tmux.conf` and other config files in this repo
-   - **Option B**: Use your own dotfiles repository
-     ```bash
-     export DOTFILES_REPO="https://github.com/YOUR_USERNAME/dotfiles.git"
-     ./setup.sh
-     ```
+2. **Edit `.env` with your personal settings**:
+   ```bash
+   # Required settings
+   GIT_USER_NAME="Your Name"
+   GIT_USER_EMAIL="your.email@example.com"
+   
+   # Optional settings (defaults shown)
+   SSH_KEY_EMAIL="$GIT_USER_EMAIL"  # Defaults to your Git email
+   SSH_KEY_COMMENT="$(hostname)"     # Defaults to your computer's hostname
+   COMPUTER_NAME="$(hostname)"       # Computer name for macOS
+   HOSTNAME="$COMPUTER_NAME"         # Network hostname
+   LOCAL_HOSTNAME="$COMPUTER_NAME"   # Local hostname
+   
+   # Dotfiles repository (optional)
+   DOTFILES_REPO="https://github.com/yourusername/dotfiles.git"
+   DOTFILES_DIR="$HOME/.dotfiles"
+   ```
+
+   The `.env` file is gitignored, so your personal settings won't be committed. This allows you to run `setup.sh` multiple times without re-editing files.
 
 3. **Customize Packages** - Edit `Brewfile` to add/remove:
    - CLI tools

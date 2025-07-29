@@ -3,6 +3,18 @@
 # macOS System Preferences Configuration
 # Run with: bash macos-defaults.sh
 
+# Load environment variables if .env exists
+if [[ -f ".env" ]]; then
+    set -a  # automatically export all variables
+    source .env
+    set +a  # turn off automatic export
+fi
+
+# Set defaults for required variables
+COMPUTER_NAME="${COMPUTER_NAME:-$(hostname)}"
+HOSTNAME="${HOSTNAME:-$COMPUTER_NAME}"
+LOCAL_HOSTNAME="${LOCAL_HOSTNAME:-$COMPUTER_NAME}"
+
 echo "Configuring macOS defaults..."
 
 # Important: Safari settings require Full Disk Access for Terminal
@@ -17,7 +29,6 @@ osascript -e 'tell application "System Preferences" to quit'
 # Computer Name and Hostname
 # ----------------------------------------------------------------------
 # Set computer name (as it appears in Finder)
-COMPUTER_NAME="johns-mac"
 echo "Setting computer name to: $COMPUTER_NAME"
 
 # Set all the hostname types

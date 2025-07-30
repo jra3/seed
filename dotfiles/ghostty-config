@@ -25,3 +25,6 @@ keybind = super+shift+left=previous_tab
 keybind = super+shift+right=next_tab
 
 keybind = super+r=reload_config
+
+# Enable clickable links (like iTerm2)
+link-url = true

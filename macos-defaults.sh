@@ -141,6 +141,66 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 defaults -currentHost write -g com.apple.keyboard.modifiermapping.1452-636-0 -array-add '<dict><key>HIDKeyboardModifierMappingDst</key><integer>30064771300</integer><key>HIDKeyboardModifierMappingSrc</key><integer>30064771129</integer></dict>'
 defaults -currentHost write -g com.apple.keyboard.modifiermapping.1452-636-0 -array-add '<dict><key>HIDKeyboardModifierMappingDst</key><integer>30064771129</integer><key>HIDKeyboardModifierMappingSrc</key><integer>30064771300</integer></dict>'
 
+# Keyboard Shortcuts
+# ----------------------------------------------------------------------
+# Mission Control, Launchpad, and Window Management shortcuts
+# Note: Parameters are (ASCII_code, key_code, modifier_flags)
+# Modifier flags: 262144=Control, 524288=Option, 1048576=Command, 131072=Shift
+
+# Mission Control - Move left a space (Control + Left Arrow)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 79 '{enabled = 1; value = {parameters = (65535, 123, 11272192); type = standard;};}'
+# Mission Control - Move left a space with window (Control + Shift + Left Arrow)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 80 '{enabled = 1; value = {parameters = (65535, 123, 11403264); type = standard;};}'
+# Mission Control - Move right a space (Control + Right Arrow)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 81 '{enabled = 1; value = {parameters = (65535, 124, 11272192); type = standard;};}'
+# Mission Control - Move right a space with window (Control + Shift + Right Arrow)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 82 '{enabled = 1; value = {parameters = (65535, 124, 11403264); type = standard;};}'
+
+# Disable Switch to Desktop 1 (was Control + 1)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 118 '{enabled = 0; value = {parameters = (65535, 18, 262144); type = standard;};}'
+
+# Disable Mission Control (up gesture)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 32 '{enabled = 0; value = {parameters = (65535, 126, 8650752); type = standard;};}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 34 '{enabled = 0; value = {parameters = (65535, 126, 8650752); type = standard;};}'
+
+# Disable Application windows (down gesture)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 33 '{enabled = 0; value = {parameters = (65535, 125, 8650752); type = standard;};}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 35 '{enabled = 0; value = {parameters = (65535, 125, 8650752); type = standard;};}'
+
+# Disable Show Desktop
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 36 '{enabled = 0; value = {parameters = (65535, 103, 8388608); type = standard;};}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 37 '{enabled = 0; value = {parameters = (65535, 103, 8388608); type = standard;};}'
+
+# Disable Launchpad
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 160 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 161 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 162 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 163 '{enabled = 1; value = {parameters = (65535, 65535, 0); type = standard;};}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 164 '{enabled = 0; value = {parameters = (65535, 65535, 0); type = standard;};}'
+
+# Disable Show Desktop
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 175 '{enabled = 1; value = {parameters = (65535, 65535, 0); type = standard;};}'
+
+# Disable Notification Center
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 184 '{enabled = 0; value = {parameters = (53, 23, 1179648); type = standard;};}'
+
+# Disable Do Not Disturb
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 190 '{enabled = 0; value = {parameters = (113, 12, 8388608); type = standard;};}'
+
+# Disable all Windows tab shortcuts (Minimize, Zoom, etc.)
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 15 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 16 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 17 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 18 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 19 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 20 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 21 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 22 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 23 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 24 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 25 '{enabled = 0;}'
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 26 '{enabled = 0;}'
+
 # Screen
 # ----------------------------------------------------------------------
 
@@ -321,6 +381,12 @@ defaults write com.apple.ActivityMonitor SortDirection -int 0
 
 # Other
 # ----------------------------------------------------------------------
+
+# Apply changes
+# ----------------------------------------------------------------------
+# Kill affected applications to apply changes
+killall cfprefsd 2>/dev/null || true
+killall Dock 2>/dev/null || true
 
 echo "macOS defaults configured!"
 echo "Note: Some changes require a logout/restart to take effect."

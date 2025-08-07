@@ -374,7 +374,7 @@ frg() {
 export EDITOR='emacs -nw -q'
 export VISUAL='emacs -nw -q'
 export PAGER='less'
-export LESS='-F -g -i -M -R -S -w -X -z-4'
+export LESS='-F -g -i -M -R -S -w -X -x4 -z-4'
 
 # PATH additions
 path=(
@@ -472,6 +472,47 @@ fi
 
 # Cargo/Rust
 [[ -f ~/.cargo/env ]] && source ~/.cargo/env
+
+# Tmux session management with Emacs server
+# Create new tmux session with Claude and Emacs server
+tn() {
+    ~/bin/tmux-new-session "$@"
+}
+
+# Initialize Emacs server in existing tmux session
+tmux-init-emacs() {
+    if [[ -z "$TMUX" ]]; then
+        echo "Not in a tmux session"
+        return 1
+    fi
+    
+    # Check if EMACS_SERVER_NAME is already set
+    if [[ -n "${EMACS_SERVER_NAME:-}" ]]; then
+        echo "Emacs server already configured: $EMACS_SERVER_NAME"
+        # Check if it's actually running
+        if pgrep -f "emacs.*--daemon=$EMACS_SERVER_NAME" > /dev/null; then
+            echo "Emacs server is running"
+        else
+            echo "Starting Emacs server..."
+            emacs --daemon=$EMACS_SERVER_NAME > /dev/null 2>&1 &
+            echo "Emacs server started: $EMACS_SERVER_NAME"
+        fi
+    else
+        # Generate new nonce and start server
+        local nonce=$(date +%s%N | sha256sum | head -c 8)
+        local server_name="emacs-${nonce}"
+        tmux set-environment EMACS_SERVER_NAME "$server_name"
+        export EMACS_SERVER_NAME="$server_name"
+        emacs --daemon=$EMACS_SERVER_NAME > /dev/null 2>&1 &
+        echo "Emacs server started: $EMACS_SERVER_NAME"
+        echo "Use: emacsclient -s $EMACS_SERVER_NAME -nw <file>"
+    fi
+}
+
+# Emacsclient aliases that use the session-specific server
+alias ec='emacsclient -s ${EMACS_SERVER_NAME:-default} -nw'
+alias ecw='emacsclient -s ${EMACS_SERVER_NAME:-default} -c'
+alias eck='emacsclient -e "(kill-emacs)" -s ${EMACS_SERVER_NAME:-default}'
 
 # Load local config if exists
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

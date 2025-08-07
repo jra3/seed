@@ -46,6 +46,7 @@ Manages dotfile symlinks and shell configuration:
 - Configures SQLite with enhanced display settings
 - Configures Git aliases
 - Sets up Ghostty terminal configuration
+- Installs bin scripts (including tmux-new-session) to ~/bin
 
 ## Common Commands
 
@@ -70,6 +71,18 @@ brew bundle check --verbose
 
 # Clean up old Homebrew versions
 brew cleanup
+
+# Create new tmux session with Claude and Emacs server
+tn                    # Auto-generates session name (e.g., swift-falcon)
+tn project-name       # Uses specified session name
+
+# In tmux session, use Emacs
+ec file.txt           # Edit in terminal
+ecw file.txt          # Edit in GUI window
+eck                   # Kill session's Emacs server
+
+# Initialize Emacs in existing tmux session
+tmux-init-emacs
 ```
 
 ## Architecture Decisions

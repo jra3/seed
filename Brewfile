@@ -56,6 +56,7 @@ cask "obsidian"
 cask "raycast"  # Alternative to Alfred
 cask "tailscale"  # Zero config VPN
 cask "syncthing"  # Continuous file synchronization
+cask "inkscape"  # Vector graphics editor
 
 # Fonts
 cask "font-jetbrains-mono"

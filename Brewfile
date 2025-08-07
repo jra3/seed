@@ -30,6 +30,7 @@ brew "go"
 brew "rust"
 brew "cmake"
 brew "qemu"
+brew "uv"  # Fast Python package and project manager
 
 # CLI productivity
 brew "fzf"
@@ -51,12 +52,9 @@ cask "1password"
 cask "spotify"
 cask "slack"
 cask "discord"
-cask "notion"
-cask "obsidian"
-cask "raycast"  # Alternative to Alfred
+cask "logseq"  # Privacy-first, local-first knowledge base
 cask "tailscale"  # Zero config VPN
 cask "syncthing"  # Continuous file synchronization
-cask "inkscape"  # Vector graphics editor
 
 # Fonts
 cask "font-jetbrains-mono"

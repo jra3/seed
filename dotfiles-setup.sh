@@ -211,32 +211,6 @@ setup_ghostty() {
     fi
 }
 
-# Setup Inkscape configuration with macOS optimizations
-setup_inkscape() {
-    echo "Setting up Inkscape configuration..."
-    
-    local inkscape_config_dir="$HOME/Library/Application Support/org.inkscape.Inkscape/config/inkscape"
-    local inkscape_prefs_file="$inkscape_config_dir/preferences.xml"
-    local local_source_prefs="$LOCAL_DOTFILES_DIR/inkscape-preferences.xml"
-    
-    # Create config directory if it doesn't exist
-    mkdir -p "$inkscape_config_dir"
-    
-    # Check local seed repository for preferences
-    if [[ -f "$local_source_prefs" ]]; then
-        # Backup existing preferences if it exists and isn't a symlink
-        if [[ -f "$inkscape_prefs_file" && ! -L "$inkscape_prefs_file" ]]; then
-            echo "Backing up existing Inkscape preferences to $inkscape_prefs_file.backup"
-            mv "$inkscape_prefs_file" "$inkscape_prefs_file.backup"
-        fi
-        
-        # Create symlink
-        ln -sf "$local_source_prefs" "$inkscape_prefs_file"
-        echo "Linked Inkscape preferences with macOS optimizations"
-    else
-        echo "Warning: Inkscape preferences not found, skipping..."
-    fi
-}
 
 # Main execution
 main() {
@@ -260,7 +234,6 @@ main() {
     
     setup_git
     setup_ghostty
-    setup_inkscape
     
     echo "Dotfiles setup complete!"
 }

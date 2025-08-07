@@ -10,9 +10,7 @@ theme = "Nocturnal Winter"
 window-padding-x = 10
 window-padding-y = 10
 
-# Emacs like splits and Windmove navigation
-keybind = ctrl+x>2=new_split:right
-keybind = ctrl+x>3=new_split:up
+# Windmove navigation (removed split bindings to avoid Emacs conflicts)
 keybind = super+left=goto_split:left
 keybind = super+right=goto_split:right
 keybind = super+up=goto_split:top

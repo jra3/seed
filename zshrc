@@ -479,6 +479,11 @@ tn() {
     ~/bin/tmux-new-session "$@"
 }
 
+# Create new git worktree with tmux session
+twt() {
+    ~/bin/tmux-worktree "$@"
+}
+
 # Initialize Emacs server in existing tmux session
 tmux-init-emacs() {
     if [[ -z "$TMUX" ]]; then

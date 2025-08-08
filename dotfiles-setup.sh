@@ -211,6 +211,34 @@ setup_ghostty() {
     fi
 }
 
+# Setup bin directory scripts
+setup_bin() {
+    echo "Setting up bin directory scripts..."
+    
+    # Create ~/bin if it doesn't exist
+    mkdir -p "$HOME/bin"
+    
+    # Get the script directory
+    local script_dir="$(cd "$(dirname "$0")" && pwd)"
+    
+    # Find all executable files in the bin directory
+    local bin_source_dir="$script_dir/bin"
+    
+    if [[ -d "$bin_source_dir" ]]; then
+        for script in "$bin_source_dir"/*; do
+            if [[ -f "$script" && -x "$script" ]]; then
+                local script_name=$(basename "$script")
+                local dest="$HOME/bin/$script_name"
+                
+                # Create symlink
+                ln -sf "$script" "$dest"
+                echo "Linked $script_name -> ~/bin/$script_name"
+            fi
+        done
+    else
+        echo "No bin directory found in repository"
+    fi
+}
 
 # Main execution
 main() {
@@ -234,6 +262,7 @@ main() {
     
     setup_git
     setup_ghostty
+    setup_bin
     
     echo "Dotfiles setup complete!"
 }

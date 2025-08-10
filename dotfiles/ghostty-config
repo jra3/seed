@@ -1,7 +1,7 @@
 # Ghostty Configuration
 
 # Font settings
-font-size = 22
+font-size = 16
 font-family = "Monaco"
 
 # Color scheme - Built-in theme

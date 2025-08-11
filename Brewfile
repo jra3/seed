@@ -55,6 +55,7 @@ cask "discord"
 cask "logseq"  # Privacy-first, local-first knowledge base
 cask "tailscale"  # Zero config VPN
 cask "syncthing"  # Continuous file synchronization
+cask "wifiman"  # UniFi WiFiman for network analysis and VPN
 
 # Fonts
 cask "font-jetbrains-mono"

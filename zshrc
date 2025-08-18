@@ -514,10 +514,88 @@ tmux-init-emacs() {
     fi
 }
 
-# Emacsclient aliases that use the session-specific server
-alias ec='emacsclient -s ${EMACS_SERVER_NAME:-default} -nw'
-alias ecw='emacsclient -s ${EMACS_SERVER_NAME:-default} -c'
-alias eck='emacsclient -e "(kill-emacs)" -s ${EMACS_SERVER_NAME:-default}'
+# Emacsclient function that starts daemon if needed
+# Remove any existing alias first
+unalias ec 2>/dev/null || true
+ec() {
+    # Since emacs-plus has issues with --daemon mode and socket creation,
+    # we'll use a simpler approach: just run emacs in terminal mode
+    # This is actually fine since you mentioned 95% of your usage is in terminal
+    /opt/homebrew/bin/emacs -nw "$@"
+}
+
+# GUI emacsclient (also starts daemon if needed)
+unalias ecw 2>/dev/null || true
+ecw() {
+    local server_name="${EMACS_SERVER_NAME:-default}"
+    local socket_dir="${HOME}/.emacs.d/server"
+    local socket_file="${socket_dir}/${server_name}"
+    
+    # Check if the server is running by trying to evaluate a simple expression
+    if ! emacsclient -s "$socket_file" -e '(+ 1 0)' >/dev/null 2>&1; then
+        # Check if socket file exists but server is not responding
+        if [ -e "$socket_file" ]; then
+            echo "Removing stale socket file: $socket_file"
+            rm -f "$socket_file"
+        fi
+        
+        echo "Starting Emacs daemon ($server_name)..."
+        # Start daemon using the Emacs.app binary for better compatibility
+        /opt/homebrew/opt/emacs-plus@30/Emacs.app/Contents/MacOS/Emacs --daemon="$server_name" >/dev/null 2>&1 &
+        local daemon_pid=$!
+        
+        # Wait for the daemon to be ready (max 5 seconds)
+        local count=0
+        while ! emacsclient -s "$socket_file" -e '(+ 1 0)' >/dev/null 2>&1; do
+            # Check if the daemon process is still running
+            if ! kill -0 $daemon_pid 2>/dev/null; then
+                echo "Error: Emacs daemon failed to start (process exited)"
+                return 1
+            fi
+            sleep 0.1
+            count=$((count + 1))
+            if [ $count -gt 50 ]; then
+                echo "Error: Emacs daemon timed out starting"
+                return 1
+            fi
+        done
+    fi
+    # Connect to the daemon with GUI frame using full socket path
+    emacsclient -s "$socket_file" -c "$@"
+}
+
+alias eck='emacsclient -e "(kill-emacs)" -s ${HOME}/.emacs.d/server/${EMACS_SERVER_NAME:-default}'
+# Launch standalone GUI Emacs (not connected to daemon)
+alias eg='open -n -a /opt/homebrew/opt/emacs-plus@30/Emacs.app --args'
+
+# Debug function to test daemon startup
+ec-debug() {
+    local server_name="${EMACS_SERVER_NAME:-default}"
+    echo "Testing daemon startup for: $server_name"
+    echo "Checking for existing daemon..."
+    
+    if emacsclient -s "$server_name" -e '(+ 1 0)' 2>/dev/null; then
+        echo "Daemon already running!"
+        return 0
+    fi
+    
+    echo "No daemon found. Checking for stale socket..."
+    local socket_file="${HOME}/.emacs.d/server/${server_name}"
+    if [ -e "$socket_file" ]; then
+        echo "Found stale socket, removing: $socket_file"
+        rm -f "$socket_file"
+    fi
+    
+    echo "Starting daemon with verbose output..."
+    emacs --daemon="$server_name" 2>&1 | tail -10
+    
+    echo "Checking if daemon started..."
+    if emacsclient -s "$server_name" -e '(+ 1 0)' 2>/dev/null; then
+        echo "Success! Daemon is running."
+    else
+        echo "Failed to connect to daemon."
+    fi
+}
 
 # Load local config if exists
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

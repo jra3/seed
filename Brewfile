@@ -4,6 +4,7 @@
 # Taps
 # Note: homebrew/cask is now built-in
 # Note: fonts are now in homebrew/cask, no separate tap needed
+tap "d12frosted/emacs-plus"
 
 # Core utilities
 brew "git"
@@ -20,7 +21,7 @@ brew "zoxide"  # Smarter cd command
 brew "tmux"
 brew "neovim"
 brew "watch"
-brew "emacs"
+brew "d12frosted/emacs-plus/emacs-plus@30"
 brew "libtool"  # GNU libtool, provides glibtool for building packages
 
 # Development tools

@@ -5,6 +5,25 @@
 
 set -euo pipefail
 
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Helper functions
+log() {
+    echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
+}
+
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
+
+warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
 # Load environment variables if .env exists
 if [[ -f ".env" ]]; then
     set -a  # automatically export all variables
@@ -29,25 +48,6 @@ COMPUTER_NAME="${COMPUTER_NAME:-$(hostname)}"
 HOSTNAME="${HOSTNAME:-$COMPUTER_NAME}"
 LOCAL_HOSTNAME="${LOCAL_HOSTNAME:-$COMPUTER_NAME}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
-
-# Helper functions
-log() {
-    echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
-}
-
-error() {
-    echo -e "${RED}[ERROR]${NC} $1" >&2
-}
-
-warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
 
 # Check if running on macOS
 if [[ "$(uname)" != "Darwin" ]]; then

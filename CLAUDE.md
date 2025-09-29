@@ -77,7 +77,7 @@ tn                    # Auto-generates session name (e.g., swift-falcon)
 tn project-name       # Uses specified session name
 
 # In tmux session, use Emacs
-ec file.txt           # Edit in terminal
+e file.txt            # Edit in terminal
 ecw file.txt          # Edit in GUI window
 eck                   # Kill session's Emacs server
 

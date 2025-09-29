@@ -65,7 +65,7 @@ emacs --daemon="$EMACS_SERVER_NAME" >/dev/null 2>&1 &
 
 # Give a clean message in the main window
 tmux send-keys -t "$SESSION_NAME:1" "# Emacs server started: $EMACS_SERVER_NAME" C-m
-tmux send-keys -t "$SESSION_NAME:1" "# Use 'ec <file>' to edit files (alias for: emacsclient -s \$EMACS_SERVER_NAME -nw)" C-m
+tmux send-keys -t "$SESSION_NAME:1" "# Use 'e <file>' to edit files" C-m
 tmux send-keys -t "$SESSION_NAME:1" "clear" C-m
 
 # Go back to the claude window
